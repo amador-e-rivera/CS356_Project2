@@ -20,7 +20,7 @@ public class Driver {
 		group1.addUser(group2);
 		group2.addUser(group3);
 
-		if (group1.findUser("Amber", group1)) {
+		if (group1.findUser("Test", group1)) {
 			System.out.println("User Exists");
 		} else {
 			System.out.println("User Not Found");

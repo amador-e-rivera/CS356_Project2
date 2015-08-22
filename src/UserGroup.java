@@ -27,17 +27,13 @@ public class UserGroup extends User {
 	}
 
 	public boolean findUser(String id, UserGroup userGroup) {
-		if (userGroup.getUserId().equals(id)) {
+		if (userGroup.getUserId().equals(id) || userGroup.getUserGroups().containsKey(id)) {
 			return true;
 		}
 
-		if (!userGroup.getUserGroups().isEmpty()) {
-			for (Map.Entry<String, User> group : userGroup.getUserGroups().entrySet()) {
-				if (group.getValue() instanceof UserGroup && findUser(id, (UserGroup) group.getValue())) {
-					return true;
-				} else if (group.getKey().equals(id)) {
-					return true;
-				}
+		for (Map.Entry<String, User> group : userGroup.getUserGroups().entrySet()) {
+			if (group.getValue() instanceof UserGroup && findUser(id, (UserGroup) group.getValue())) {
+				return true;
 			}
 		}
 
