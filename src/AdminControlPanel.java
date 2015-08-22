@@ -28,7 +28,11 @@ public class AdminControlPanel extends JFrame {
 	private JScrollPane scroll;
 	private UserGroup rootGroup;
 	private String currentGroup;
+	private String currentUser;
 
+	// ********************************************************************************************
+	// Constructor
+	// ********************************************************************************************
 	private AdminControlPanel() {
 		this.setTitle("Mini Twitter");
 		this.setLayout(new FlowLayout());
@@ -38,7 +42,7 @@ public class AdminControlPanel extends JFrame {
 		currentGroup = "Root";
 
 		// Initializers
-		init_AdminPanel();
+		init_View();
 
 		this.pack();
 		this.setResizable(false);
@@ -49,7 +53,7 @@ public class AdminControlPanel extends JFrame {
 	// ********************************************************************************************
 	// Initializes the Admin Control Panel
 	// ********************************************************************************************
-	private void init_AdminPanel() {
+	private void init_View() {
 		JPanel panel = new JPanel();
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -68,15 +72,18 @@ public class AdminControlPanel extends JFrame {
 		tree.setShowsRootHandles(true);
 		tree.addTreeSelectionListener((TreeSelectionEvent) -> {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-
+			
 			//If node node is selected then return null
 			if (node == null) {
 				return;
 			}
-
+			
 			//The remaining code gets the group name.
 			if(!node.getAllowsChildren()) {
+				currentUser = (String)node.getUserObject();
 				node = (DefaultMutableTreeNode) node.getParent();
+			} else {
+				currentUser = null;
 			}
 			
 			currentGroup = (String) node.getUserObject();
@@ -131,6 +138,11 @@ public class AdminControlPanel extends JFrame {
 		// Open User Field Button
 		// ----------------------------------------------------------------------------------------
 		JButton btn_UserView = new JButton("Open User View");
+		btn_UserView.addActionListener((ActionEvent) -> {
+			if(currentUser != null) {
+				new UserView(rootGroup.getUser(currentUser, rootGroup));
+			}
+		});
 		c.gridx = 1;
 		c.gridy = 2;
 		c.gridwidth = 2;
@@ -174,7 +186,6 @@ public class AdminControlPanel extends JFrame {
 		add(panel);
 	}
 
-	
 	// ********************************************************************************************
 	// Update Tree
 	// ********************************************************************************************
@@ -206,7 +217,6 @@ public class AdminControlPanel extends JFrame {
 		return node;
 	}
 
-	
 	// ********************************************************************************************
 	// Returns an instance of the AdminControl panel.
 	// ********************************************************************************************
@@ -217,5 +227,4 @@ public class AdminControlPanel extends JFrame {
 		}
 		return instance;
 	}
-
 }
