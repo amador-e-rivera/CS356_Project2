@@ -229,19 +229,6 @@ public class AdminControlPanel extends JFrame {
 	// Returns an instance of the AdminControl panel.
 	// --------------------------------------------------------------------------------------------
 	public static AdminControlPanel getInstance() {
-		User user1 = new User("Amador");
-		User user2 = new User("Linh");
-		User user3 = new User("Giang");
-		
-		user1.addFollower(user2);
-		user1.addFollower(user3);
-		user2.addFollower(user1);
-		user2.addFollower(user3);
-		//user3.addFollower(user2);
-		user3.addFollower(user1);
-		
-		user3.postTweet("Amador", "Hello");
-		System.out.println();
 		
 		if (instance == null) {
 			instance = new AdminControlPanel();

@@ -41,6 +41,7 @@ public class User implements Observer{
 	public void addFollower(User user) {
 		if(!followers.containsKey(user.getUserId())) {
 			followers.put(user.getUserId(), user);
+			user.followUser(this);
 		}
 	}
 	
