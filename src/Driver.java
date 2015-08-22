@@ -3,7 +3,7 @@ import javax.swing.SwingUtilities;
 public class Driver {
 
 	public static void main(String[] args) {
-		UserGroup group1 = new UserGroup("root");
+		UserGroup root = new UserGroup("root");
 		UserGroup group2 = new UserGroup("CS356");
 		UserGroup group3 = new UserGroup("CS408");
 		
@@ -12,20 +12,19 @@ public class Driver {
 		User user3 = new User("Giang");
 		User user4 = new User("Amber");
 		
-		group1.addUser(user1);
-		group1.addUser(user2);
-		group2.addUser(user3);
-		group3.addUser(user4);
+		root.addUser(user1, root);
+		root.addUser(user2, root);
+		group2.addUser(user3, root);
+		group3.addUser(user4, root);
 		
-		group1.addUser(group2);
-		group2.addUser(group3);
+		root.addUser(group2, root);
+		group2.addUser(group3, root);
 
-		if (group1.findUser("Test", group1)) {
+		if (root.userExists("Test", root)) {
 			System.out.println("User Exists");
 		} else {
 			System.out.println("User Not Found");
 		}
-		
 		
 		user1.addFollower(user2);
 		user1.addFollower(user3);

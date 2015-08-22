@@ -16,10 +16,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-// --------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // AdminControlPanel implemented as a Singleton class so all updates made on the control panel
 // are reflected on every AdminControlPanel window open.
-// --------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 @SuppressWarnings("serial")
 public class AdminControlPanel extends JFrame {
 
@@ -27,7 +27,7 @@ public class AdminControlPanel extends JFrame {
 	private JTree tree;
 	private JScrollPane scroll;
 	private UserGroup rootGroup;
-	private String currentSelectedNode;
+	private String currentGroup;
 
 	private AdminControlPanel() {
 		this.setTitle("Mini Twitter");
@@ -35,7 +35,7 @@ public class AdminControlPanel extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		rootGroup = new UserGroup("Root");
-		currentSelectedNode = "Root";
+		currentGroup = "Root";
 
 		// Initializers
 		init_AdminPanel();
@@ -46,9 +46,9 @@ public class AdminControlPanel extends JFrame {
 		this.setVisible(true);
 	}
 
-	// --------------------------------------------------------------------------------------------
+	// ********************************************************************************************
 	// Initializes the Admin Control Panel
-	// --------------------------------------------------------------------------------------------
+	// ********************************************************************************************
 	private void init_AdminPanel() {
 		JPanel panel = new JPanel();
 		GridBagConstraints c = new GridBagConstraints();
@@ -65,6 +65,7 @@ public class AdminControlPanel extends JFrame {
 		tree.setPreferredSize(new Dimension(250, 400));
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setSelectionRow(0); // Select root node
+		tree.setShowsRootHandles(true);
 		tree.addTreeSelectionListener((TreeSelectionEvent) -> {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 
@@ -78,8 +79,7 @@ public class AdminControlPanel extends JFrame {
 				node = (DefaultMutableTreeNode) node.getParent();
 			}
 			
-			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
-			currentSelectedNode = (String) parent.getUserObject();
+			currentGroup = (String) node.getUserObject();
 		});
 
 		scroll = new JScrollPane(tree); // Add tree to a scroll pane
@@ -102,10 +102,7 @@ public class AdminControlPanel extends JFrame {
 
 		JButton btn_UserId = new JButton("Add User");
 		btn_UserId.addActionListener((ActionEvent) -> {
-			User user = new User(userId.getText());
-			rootGroup.addUser(user);
-			tester(currentSelectedNode, user);
-			System.out.println();
+			updateTree(new User(userId.getText()), (UserGroup) rootGroup.getUser(currentGroup, rootGroup));
 		});
 
 		c.gridx = 2;
@@ -123,9 +120,7 @@ public class AdminControlPanel extends JFrame {
 
 		JButton btn_GroupId = new JButton("Add Group");
 		btn_GroupId.addActionListener((ActionEvent) -> {
-			rootGroup.addUser(new UserGroup(groupId.getText()));
-			DefaultMutableTreeNode node = updateTreeModel(rootGroup);
-			System.out.println();
+			updateTree(new UserGroup(groupId.getText()), (UserGroup) rootGroup.getUser(currentGroup, rootGroup));
 		});
 
 		c.gridx = 2;
@@ -179,55 +174,42 @@ public class AdminControlPanel extends JFrame {
 		add(panel);
 	}
 
-	// --------------------------------------------------------------------------------------------
+	
+	// ********************************************************************************************
 	// Update Tree
-	// --------------------------------------------------------------------------------------------
-	private void tester(String groupNodeId, User user) {
-		DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
-		DefaultMutableTreeNode root;
-		DefaultMutableTreeNode newNode;
-
-		if (groupNodeId != null) {
-			root = (DefaultMutableTreeNode) model.getRoot();
-
-			if (root.getIndex(new DefaultMutableTreeNode(groupNodeId)) != -1) {
-				System.out.println(groupNodeId + " found");
-			}
+	// ********************************************************************************************
+	private void updateTree(User user, UserGroup group) {
+		if(group != null) {
+			group.addUser(user, rootGroup);
+			DefaultTreeModel model = new DefaultTreeModel(updateModel(rootGroup));
+			tree.setModel(model);
 		}
-
-		root = (DefaultMutableTreeNode) model.getRoot();
-		newNode = new DefaultMutableTreeNode(user.getUserId());
-		
-		if(!(user instanceof UserGroup)) {
-			newNode.setAllowsChildren(false);
-		}
-		
-		root.add(newNode);
-		model.reload(root);
 	}
-
-	private DefaultMutableTreeNode updateTreeModel(UserGroup root) {
+	
+	// ********************************************************************************************
+	// This returns a new nested TreeNode to create a new model.
+	// ********************************************************************************************
+	private DefaultMutableTreeNode updateModel(UserGroup root) {
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode(root.getUserId());
-
-		if (!root.getUserGroups().isEmpty()) {
-
-			for (Map.Entry<String, User> group : root.getUserGroups().entrySet()) {
-				if (group.getValue() instanceof UserGroup) {
-					System.out.println("USER GROUP: " + group.getKey());
-					node.add(updateTreeModel((UserGroup) group.getValue()));
-				} else {
-					node.add(new DefaultMutableTreeNode(group.getKey()));
-					System.out.println("- USER: " + group.getKey());
-				}
+		
+		for (Map.Entry<String, User> group : root.getUserMap().entrySet()) {
+			if (group.getValue() instanceof UserGroup) {
+				DefaultMutableTreeNode newGroup = updateModel((UserGroup) group.getValue());
+				node.add(newGroup);
+			} else {
+				DefaultMutableTreeNode user = new DefaultMutableTreeNode(group.getKey());
+				user.setAllowsChildren(false);
+				node.add(user);
 			}
 		}
-
+		
 		return node;
 	}
 
-	// --------------------------------------------------------------------------------------------
+	
+	// ********************************************************************************************
 	// Returns an instance of the AdminControl panel.
-	// --------------------------------------------------------------------------------------------
+	// ********************************************************************************************
 	public static AdminControlPanel getInstance() {
 		
 		if (instance == null) {
