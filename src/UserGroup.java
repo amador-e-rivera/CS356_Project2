@@ -1,8 +1,6 @@
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
 public class UserGroup extends User {
 
 	private Map<String, User> users;

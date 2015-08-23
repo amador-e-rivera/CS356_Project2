@@ -11,7 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
@@ -25,10 +24,9 @@ public class AdminControlPanel extends JFrame {
 
 	private static AdminControlPanel instance = null;
 	private JTree tree;
-	private JScrollPane scroll;
 	private UserGroup rootGroup;
-	private String currentGroup;
-	private String currentUser;
+	private String selectedGroup;
+	private String selectedUser;
 
 	// ********************************************************************************************
 	// Constructor
@@ -39,7 +37,7 @@ public class AdminControlPanel extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		rootGroup = new UserGroup("Root");
-		currentGroup = "Root";
+		selectedGroup = "Root";
 
 		// Initializers
 		init_View();
@@ -80,16 +78,16 @@ public class AdminControlPanel extends JFrame {
 			
 			//The remaining code gets the group name.
 			if(!node.getAllowsChildren()) {
-				currentUser = (String)node.getUserObject();
+				selectedUser = (String)node.getUserObject();
 				node = (DefaultMutableTreeNode) node.getParent();
 			} else {
-				currentUser = null;
+				selectedUser = null;
 			}
 			
-			currentGroup = (String) node.getUserObject();
+			selectedGroup = (String) node.getUserObject();
 		});
 
-		scroll = new JScrollPane(tree); // Add tree to a scroll pane
+		JScrollPane scroll = new JScrollPane(tree); // Add tree to a scroll pane
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridheight = 8;
@@ -109,7 +107,7 @@ public class AdminControlPanel extends JFrame {
 
 		JButton btn_UserId = new JButton("Add User");
 		btn_UserId.addActionListener((ActionEvent) -> {
-			updateTree(new User(userId.getText()), (UserGroup) rootGroup.getUser(currentGroup, rootGroup));
+			updateTree(new User(userId.getText()), (UserGroup) rootGroup.getUser(selectedGroup, rootGroup));
 		});
 
 		c.gridx = 2;
@@ -127,7 +125,7 @@ public class AdminControlPanel extends JFrame {
 
 		JButton btn_GroupId = new JButton("Add Group");
 		btn_GroupId.addActionListener((ActionEvent) -> {
-			updateTree(new UserGroup(groupId.getText()), (UserGroup) rootGroup.getUser(currentGroup, rootGroup));
+			updateTree(new UserGroup(groupId.getText()), (UserGroup) rootGroup.getUser(selectedGroup, rootGroup));
 		});
 
 		c.gridx = 2;
@@ -139,8 +137,9 @@ public class AdminControlPanel extends JFrame {
 		// ----------------------------------------------------------------------------------------
 		JButton btn_UserView = new JButton("Open User View");
 		btn_UserView.addActionListener((ActionEvent) -> {
-			if(currentUser != null) {
-				new UserView(rootGroup.getUser(currentUser, rootGroup));
+			if(selectedUser != null) {
+				User user = rootGroup.getUser(selectedUser, rootGroup);
+				user.userView(rootGroup);
 			}
 		});
 		c.gridx = 1;
@@ -221,10 +220,11 @@ public class AdminControlPanel extends JFrame {
 	// Returns an instance of the AdminControl panel.
 	// ********************************************************************************************
 	public static AdminControlPanel getInstance() {
-		
+				
 		if (instance == null) {
 			instance = new AdminControlPanel();
 		}
+		
 		return instance;
 	}
 }

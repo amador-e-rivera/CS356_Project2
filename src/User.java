@@ -8,6 +8,7 @@ public class User implements Observer{
 	private Map<String, Observer> followers;
 	private Map<String, Observer> following;
 	private List<String> tweets;
+	private UserView view;
 	
 	public User(String id) {
 		this.id = id;
@@ -35,23 +36,27 @@ public class User implements Observer{
 		return tweets;
 	}
 	
+	public void userView(UserGroup group) {
+		view = new UserView(this, group);
+	}
+	
 	//---------------------------------------------------------------------------------------------
 	// Setters
 	//---------------------------------------------------------------------------------------------
-	public void addFollower(User user) {
+	public void updateFollowersList(User user) {
 		if(!followers.containsKey(user.getUserId())) {
 			followers.put(user.getUserId(), user);
-			user.followUser(this);
 		}
 	}
 	
-	public void followUser(User user) {
-		following.put(user.getUserId(), user);
+	public void updateFollowingList(User followedUser) {
+		following.put(followedUser.getUserId(), followedUser);
+		followedUser.updateFollowersList(this);
 	}
 	
-	public void postTweet(String userId, String tweet) {
-		tweets.add(userId + ": " + tweet);
-		notifyObservers(userId);
+	public void postTweet(String tweet) {
+		tweets.add(id + ": " + tweet);
+		notifyObservers(id);
 	}
 	
 	//---------------------------------------------------------------------------------------------
@@ -59,14 +64,20 @@ public class User implements Observer{
 	//---------------------------------------------------------------------------------------------
 	public void notifyObservers(String userId) {
 		for(Map.Entry<String, Observer> observer : followers.entrySet()) {
-			observer.getValue().update(userId, tweets.get(tweets.size() - 1));
+			User user = (User)observer.getValue();
+			user.update(userId, tweets.get(tweets.size() - 1));
 		}
 	}
 
 	@Override
 	public void update(String userId, String tweet) {
-		if(followers.containsKey(userId) || userId.equals(id)) {
+		if(following.containsKey(userId) || userId.equals(id)) {
 			tweets.add(tweet);
+			
+			if(view != null) {
+				view.updateFollowingListView();
+				view.updateNewsFeedListView();
+			}
 		}
 	}
 }
