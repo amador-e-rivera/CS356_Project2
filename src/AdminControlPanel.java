@@ -12,6 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -87,7 +88,7 @@ public class AdminControlPanel extends JFrame {
 
 			selectedGroup = (String) node.getUserObject();
 		});
-
+		
 		JScrollPane scroll = new JScrollPane(tree); // Add tree to a scroll pane
 		c.gridx = 0;
 		c.gridy = 0;
@@ -197,7 +198,10 @@ public class AdminControlPanel extends JFrame {
 	private void updateTree(User user, UserGroup group) {
 		if (group != null) {
 			group.addUser(user, rootGroup);
-			DefaultTreeModel model = new DefaultTreeModel(rootGroup.getUserTreeNode());
+			
+			// This creates a new model and checks if a node allows children. If no children
+			// are allowed then it uses the folder icon
+			DefaultTreeModel model = new DefaultTreeModel(rootGroup.getUserTreeNode(), true);
 			tree.setModel(model);
 		}
 	}
