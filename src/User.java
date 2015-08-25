@@ -3,12 +3,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class User implements Observer{
+import javax.swing.tree.DefaultMutableTreeNode;
+
+public class User implements Observer, UserComponent{
 	private String id;
 	private Map<String, Observer> followers;
 	private Map<String, Observer> following;
 	private List<String> tweets;
-	private UserView view;
 	
 	public User(String id) {
 		this.id = id;
@@ -36,10 +37,6 @@ public class User implements Observer{
 		return tweets;
 	}
 	
-	public void userView(UserGroup group) {
-		view = new UserView(this, group);
-	}
-	
 	//---------------------------------------------------------------------------------------------
 	// Setters
 	//---------------------------------------------------------------------------------------------
@@ -60,7 +57,7 @@ public class User implements Observer{
 	}
 	
 	//---------------------------------------------------------------------------------------------
-	// Observer Functions
+	// Observer Pattern Functions
 	//---------------------------------------------------------------------------------------------
 	public void notifyObservers(String userId) {
 		for(Map.Entry<String, Observer> observer : followers.entrySet()) {
@@ -73,11 +70,15 @@ public class User implements Observer{
 	public void update(String userId, String tweet) {
 		if(following.containsKey(userId) || userId.equals(id)) {
 			tweets.add(tweet);
-			
-			if(view != null) {
-				view.updateFollowingListView();
-				view.updateNewsFeedListView();
-			}
 		}
+	}
+
+	// ----------------------------------------------------------------------------------------
+	// Composite Pattern Functions
+	// ----------------------------------------------------------------------------------------
+	@Override
+	public DefaultMutableTreeNode getUserTreeNode() {
+		// TODO Auto-generated method stub
+		return new DefaultMutableTreeNode(id);
 	}
 }

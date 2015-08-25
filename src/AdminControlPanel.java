@@ -23,6 +23,7 @@ import javax.swing.tree.TreeSelectionModel;
 public class AdminControlPanel extends JFrame {
 
 	private static AdminControlPanel instance = null;
+	private UserView userView;
 	private JTree tree;
 	private UserGroup rootGroup;
 	private String selectedGroup;
@@ -62,7 +63,7 @@ public class AdminControlPanel extends JFrame {
 		// ----------------------------------------------------------------------------------------
 		// Tree View
 		// ----------------------------------------------------------------------------------------
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+		DefaultMutableTreeNode root = rootGroup.getUserTreeNode();
 		tree = new JTree(root); // Add root node to tree
 		tree.setPreferredSize(new Dimension(250, 400));
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -139,7 +140,11 @@ public class AdminControlPanel extends JFrame {
 		btn_UserView.addActionListener((ActionEvent) -> {
 			if(selectedUser != null) {
 				User user = rootGroup.getUser(selectedUser, rootGroup);
-				user.userView(rootGroup);
+				if(userView == null) {
+					userView = new UserView(user, rootGroup);
+				} else {
+					userView.add(new UserView(user, rootGroup));
+				}
 			}
 		});
 		c.gridx = 1;
@@ -191,31 +196,11 @@ public class AdminControlPanel extends JFrame {
 	private void updateTree(User user, UserGroup group) {
 		if(group != null) {
 			group.addUser(user, rootGroup);
-			DefaultTreeModel model = new DefaultTreeModel(updateModel(rootGroup));
+			DefaultTreeModel model = new DefaultTreeModel(rootGroup.getUserTreeNode());
 			tree.setModel(model);
 		}
 	}
 	
-	// ********************************************************************************************
-	// This returns a new nested TreeNode to create a new model.
-	// ********************************************************************************************
-	private DefaultMutableTreeNode updateModel(UserGroup root) {
-		DefaultMutableTreeNode node = new DefaultMutableTreeNode(root.getUserId());
-		
-		for (Map.Entry<String, User> group : root.getUserMap().entrySet()) {
-			if (group.getValue() instanceof UserGroup) {
-				DefaultMutableTreeNode newGroup = updateModel((UserGroup) group.getValue());
-				node.add(newGroup);
-			} else {
-				DefaultMutableTreeNode user = new DefaultMutableTreeNode(group.getKey());
-				user.setAllowsChildren(false);
-				node.add(user);
-			}
-		}
-		
-		return node;
-	}
-
 	// ********************************************************************************************
 	// Returns an instance of the AdminControl panel.
 	// ********************************************************************************************

@@ -3,6 +3,8 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
@@ -17,6 +19,7 @@ import javax.swing.JTextField;
 public class UserView extends JFrame {
 	private User user;
 	private UserGroup rootGroup;
+	private List<UserView> userViews;
 	private JList<String> followingList;
 	private JList<String> newsFeedList;
 
@@ -27,6 +30,7 @@ public class UserView extends JFrame {
 
 		this.user = user;
 		this.rootGroup = rootGroup;
+		userViews = new ArrayList<UserView>();
 
 		init_View();
 		updateNewsFeedListView();
@@ -104,6 +108,10 @@ public class UserView extends JFrame {
 		btn_postMessage.addActionListener((ActionEvent) -> {
 			user.postTweet(message.getText());
 			updateNewsFeedListView();
+			
+			for(UserView v : userViews) {
+				v.updateNewsFeedListView();
+			}
 		});
 		c.gridx = 1;
 		c.gridy = 2;
@@ -126,6 +134,10 @@ public class UserView extends JFrame {
 		add(panel);
 	}
 
+	public void add(UserView view) {
+		this.userViews.add(view);
+	}
+	
 	public void updateFollowingListView() {
 		DefaultListModel<String> model = new DefaultListModel<String>();
 

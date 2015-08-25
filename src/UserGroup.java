@@ -1,7 +1,9 @@
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserGroup extends User {
+import javax.swing.tree.DefaultMutableTreeNode;
+
+public class UserGroup extends User implements UserComponent {
 
 	private Map<String, User> users;
 
@@ -34,7 +36,7 @@ public class UserGroup extends User {
 	}
 
 	// ********************************************************************************************
-	// Determines if a user exists
+	// Determines if a user exists by using recursion
 	// ********************************************************************************************
 	public boolean userExists(String id, UserGroup userGroup) {
 		// Returns true if current group matches id or if a user in its Map matches the id
@@ -52,7 +54,7 @@ public class UserGroup extends User {
 	}
 	
 	// ********************************************************************************************
-	// Returns User object for User matching the id
+	// Returns User object for User matching the id by using recursion
 	// ********************************************************************************************
 	public User getUser(String id, UserGroup userGroup) {
 		// Returns true if current group matches id or if a user in its Map matches the id
@@ -70,5 +72,20 @@ public class UserGroup extends User {
 		}
 
 		return null; // id not found
+	}
+	
+	// ----------------------------------------------------------------------------------------
+	// Returns a nested node for this user group
+	// ----------------------------------------------------------------------------------------
+	@Override
+	public DefaultMutableTreeNode getUserTreeNode() {
+		// TODO Auto-generated method stub
+		DefaultMutableTreeNode group = new DefaultMutableTreeNode(super.getUserId());
+		
+		for(Map.Entry<String, User> user : users.entrySet()) {
+			group.add(user.getValue().getUserTreeNode());
+		}
+		
+		return group;
 	}
 }
