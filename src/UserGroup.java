@@ -75,11 +75,10 @@ public class UserGroup extends User implements UserComponent {
 	}
 	
 	// ----------------------------------------------------------------------------------------
-	// Returns a nested node for this user group
+	// Composite Pattern Function - Returns a nested tree node for this user group
 	// ----------------------------------------------------------------------------------------
 	@Override
 	public DefaultMutableTreeNode getUserTreeNode() {
-		// TODO Auto-generated method stub
 		DefaultMutableTreeNode group = new DefaultMutableTreeNode(super.getUserId());
 		
 		for(Map.Entry<String, User> user : users.entrySet()) {

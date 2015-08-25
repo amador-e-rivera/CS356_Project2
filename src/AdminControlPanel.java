@@ -71,20 +71,20 @@ public class AdminControlPanel extends JFrame {
 		tree.setShowsRootHandles(true);
 		tree.addTreeSelectionListener((TreeSelectionEvent) -> {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-			
-			//If node node is selected then return null
+
+			// If node node is selected then return null
 			if (node == null) {
 				return;
 			}
-			
-			//The remaining code gets the group name.
-			if(!node.getAllowsChildren()) {
-				selectedUser = (String)node.getUserObject();
+
+			// The remaining code gets the group name.
+			if (!node.getAllowsChildren()) {
+				selectedUser = (String) node.getUserObject();
 				node = (DefaultMutableTreeNode) node.getParent();
 			} else {
 				selectedUser = null;
 			}
-			
+
 			selectedGroup = (String) node.getUserObject();
 		});
 
@@ -138,9 +138,9 @@ public class AdminControlPanel extends JFrame {
 		// ----------------------------------------------------------------------------------------
 		JButton btn_UserView = new JButton("Open User View");
 		btn_UserView.addActionListener((ActionEvent) -> {
-			if(selectedUser != null) {
+			if (selectedUser != null) {
 				User user = rootGroup.getUser(selectedUser, rootGroup);
-				if(userView == null) {
+				if (userView == null) {
 					userView = new UserView(user, rootGroup);
 				} else {
 					userView.add(new UserView(user, rootGroup));
@@ -191,25 +191,24 @@ public class AdminControlPanel extends JFrame {
 	}
 
 	// ********************************************************************************************
-	// Update Tree
+	// Update Tree - This method adds a new user to the selected group and the
+	// updates the JTree
 	// ********************************************************************************************
 	private void updateTree(User user, UserGroup group) {
-		if(group != null) {
+		if (group != null) {
 			group.addUser(user, rootGroup);
 			DefaultTreeModel model = new DefaultTreeModel(rootGroup.getUserTreeNode());
 			tree.setModel(model);
 		}
 	}
-	
+
 	// ********************************************************************************************
 	// Returns an instance of the AdminControl panel.
 	// ********************************************************************************************
 	public static AdminControlPanel getInstance() {
-				
 		if (instance == null) {
 			instance = new AdminControlPanel();
 		}
-		
 		return instance;
 	}
 }

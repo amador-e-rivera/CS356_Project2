@@ -74,11 +74,12 @@ public class User implements Observer, UserComponent{
 	}
 
 	// ----------------------------------------------------------------------------------------
-	// Composite Pattern Functions
+	// Composite Pattern Function
 	// ----------------------------------------------------------------------------------------
 	@Override
 	public DefaultMutableTreeNode getUserTreeNode() {
-		// TODO Auto-generated method stub
-		return new DefaultMutableTreeNode(id);
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(id);
+		node.setAllowsChildren(false); //Only groups should have children. Users are leafs.
+		return node;
 	}
 }
