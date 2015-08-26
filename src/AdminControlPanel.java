@@ -63,7 +63,7 @@ public class AdminControlPanel extends JFrame {
 		// ----------------------------------------------------------------------------------------
 		DefaultTreeModel model = new DefaultTreeModel(rootGroup.getUserTreeNode(), true);
 		tree = new JTree(model); // Add root node to tree
-		tree.setPreferredSize(new Dimension(250, 400));
+		tree.setPreferredSize(new Dimension(250, 350));
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setSelectionRow(0); // Select root node
 		tree.setShowsRootHandles(true);
@@ -153,7 +153,7 @@ public class AdminControlPanel extends JFrame {
 		btn_ShowUserTotal.addActionListener((ActionEvent) -> {
 			JOptionPane.showMessageDialog(this, "Number of Users: " + getVisitor().getNumberOfUsers());
 		});
-		c.anchor = GridBagConstraints.SOUTH;
+		c.insets = new Insets(200,5,5,5);
 		c.gridx = 1;
 		c.gridy = 3;
 		c.gridwidth = 1;
@@ -177,8 +177,9 @@ public class AdminControlPanel extends JFrame {
 		btn_ShowMsgTotal.addActionListener((ActionEvent) -> {
 			JOptionPane.showMessageDialog(this, "Number of Messages: " + getVisitor().getNumberOfMessages());
 		});
+		c.insets = new Insets(5,5,5,5);
 		c.gridx = 1;
-		c.gridy = 7;
+		c.gridy = 4;
 		c.gridheight = 1;
 		panel.add(btn_ShowMsgTotal, c);
 
@@ -190,7 +191,7 @@ public class AdminControlPanel extends JFrame {
 			JOptionPane.showMessageDialog(this, "Percentage of Positive Messages: " + getVisitor().getPositivePercentage() + "%");
 		});
 		c.gridx = 2;
-		c.gridy = 7;
+		c.gridy = 4;
 		panel.add(btn_ShowPositivePercentage, c);
 
 		add(panel);
