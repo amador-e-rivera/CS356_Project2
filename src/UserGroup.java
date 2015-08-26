@@ -3,7 +3,7 @@ import java.util.Map;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public class UserGroup extends User implements UserComponent {
+public class UserGroup extends User implements IUserComponent, IUserVisitable {
 
 	private Map<String, User> users;
 
@@ -75,7 +75,7 @@ public class UserGroup extends User implements UserComponent {
 	}
 	
 	// ----------------------------------------------------------------------------------------
-	// Composite Pattern Function - Returns a nested tree node for this user group
+	// Composite Pattern Method - Returns a nested tree node for this user group
 	// ----------------------------------------------------------------------------------------
 	@Override
 	public DefaultMutableTreeNode getUserTreeNode() {
@@ -86,5 +86,13 @@ public class UserGroup extends User implements UserComponent {
 		}
 		
 		return group;
+	}
+	
+	// ----------------------------------------------------------------------------------------
+	// Visitor Pattern Method
+	// ----------------------------------------------------------------------------------------
+	@Override
+	public void accept(IUserVisitor visitor) {
+		visitor.getGroupInfo(this);
 	}
 }

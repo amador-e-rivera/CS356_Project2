@@ -5,81 +5,104 @@ import java.util.Map;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public class User implements Observer, UserComponent{
+public class User implements IObserver, IUserComponent, IUserVisitable {
 	private String id;
-	private Map<String, Observer> followers;
-	private Map<String, Observer> following;
-	private List<String> tweets;
-	
+	private UserView view;
+	private Map<String, IObserver> followers;
+	private Map<String, IObserver> following;
+	private List<String> newsFeed;
+
 	public User(String id) {
 		this.id = id;
-		followers = new HashMap<String, Observer>();
-		following = new HashMap<String, Observer>();
-		tweets = new ArrayList<String>();
+		followers = new HashMap<String, IObserver>();
+		following = new HashMap<String, IObserver>();
+		newsFeed = new ArrayList<String>();
 	}
-	
-	//---------------------------------------------------------------------------------------------
-	// Getters
-	//---------------------------------------------------------------------------------------------
-	public String getUserId() {
-		return id;
-	}
-	
-	public Map<String, Observer> getFollowers() {
-		return followers;
-	}
-	
-	public Map<String, Observer> getFollowedUsers() {
-		return following;
-	}
-	
-	public List<String> getTweets() {
-		return tweets;
-	}
-	
-	//---------------------------------------------------------------------------------------------
+
+	// ---------------------------------------------------------------------------------------------
 	// Setters
-	//---------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
 	public void updateFollowersList(User user) {
-		if(!followers.containsKey(user.getUserId())) {
+		if (!followers.containsKey(user.getUserId())) {
 			followers.put(user.getUserId(), user);
 		}
 	}
-	
+
 	public void updateFollowingList(User followedUser) {
+		if(followedUser.getUserId().equals(id)) {
+			return;
+		}
+		
 		following.put(followedUser.getUserId(), followedUser);
 		followedUser.updateFollowersList(this);
 	}
-	
+
 	public void postTweet(String tweet) {
-		tweets.add(id + ": " + tweet);
+		newsFeed.add(id + ": " + tweet);
 		notifyObservers(id);
 	}
 	
-	//---------------------------------------------------------------------------------------------
-	// Observer Pattern Functions
-	//---------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------
+	// Getters
+	// ---------------------------------------------------------------------------------------------
+	public String getUserId() {
+		return id;
+	}
+
+	public Map<String, IObserver> getFollowers() {
+		return followers;
+	}
+
+	public Map<String, IObserver> getFollowedUsers() {
+		return following;
+	}
+
+	public List<String> getNewsFeed() {
+		return newsFeed;
+	}
+
+	// Displays the view for this user
+	public void getUserView(UserGroup rootGroup) {
+		if (view == null) {
+			view = new UserView(this, rootGroup);
+		} else {
+			view.setVisible(true);
+		}
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// Observer Pattern Methods
+	// ---------------------------------------------------------------------------------------------
 	public void notifyObservers(String userId) {
-		for(Map.Entry<String, Observer> observer : followers.entrySet()) {
-			User user = (User)observer.getValue();
-			user.update(userId, tweets.get(tweets.size() - 1));
+		for (Map.Entry<String, IObserver> observer : followers.entrySet()) {
+			User user = (User) observer.getValue();
+			user.update(userId, newsFeed.get(newsFeed.size() - 1));
 		}
 	}
 
 	@Override
 	public void update(String userId, String tweet) {
-		if(following.containsKey(userId) || userId.equals(id)) {
-			tweets.add(tweet);
+		if (following.containsKey(userId) || userId.equals(id)) {
+			newsFeed.add(tweet);
+			view.updateNewsFeedListView();
 		}
 	}
 
 	// ----------------------------------------------------------------------------------------
-	// Composite Pattern Function
+	// Composite Pattern Method
 	// ----------------------------------------------------------------------------------------
 	@Override
 	public DefaultMutableTreeNode getUserTreeNode() {
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode(id);
-		node.setAllowsChildren(false); //Only groups should have children. Users are leafs.
+		node.setAllowsChildren(false); // Only groups should have children. Users are leafs.
 		return node;
+	}
+
+	// ----------------------------------------------------------------------------------------
+	// Visitor Pattern Method
+	// ----------------------------------------------------------------------------------------
+	@Override
+	public void accept(IUserVisitor visitor) {
+		visitor.getUserInfo(this);
 	}
 }

@@ -3,8 +3,6 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
@@ -19,7 +17,6 @@ import javax.swing.JTextField;
 public class UserView extends JFrame {
 	private User user;
 	private UserGroup rootGroup;
-	private List<UserView> userViews;
 	private JList<String> followingList;
 	private JList<String> newsFeedList;
 
@@ -30,7 +27,6 @@ public class UserView extends JFrame {
 
 		this.user = user;
 		this.rootGroup = rootGroup;
-		userViews = new ArrayList<UserView>();
 
 		init_View();
 		updateNewsFeedListView();
@@ -101,17 +97,13 @@ public class UserView extends JFrame {
 		panel.add(message, c);
 
 		// ----------------------------------------------------------------------------------------
-		// Post Tweet Button
+		// Post Message Button
 		// ----------------------------------------------------------------------------------------
 		JButton btn_postMessage = new JButton("Post Message");
 		btn_postMessage.setPreferredSize(new Dimension(175, 26));
 		btn_postMessage.addActionListener((ActionEvent) -> {
 			user.postTweet(message.getText());
 			updateNewsFeedListView();
-			
-			for(UserView v : userViews) {
-				v.updateNewsFeedListView();
-			}
 		});
 		c.gridx = 1;
 		c.gridy = 2;
@@ -120,7 +112,7 @@ public class UserView extends JFrame {
 		// ----------------------------------------------------------------------------------------
 		// Messages List View
 		// ----------------------------------------------------------------------------------------
-		String[] news = user.getTweets().toArray(new String[user.getTweets().size()]);
+		String[] news = user.getNewsFeed().toArray(new String[user.getNewsFeed().size()]);
 		newsFeedList = new JList<String>(news);
 		JScrollPane scroll_msgs = new JScrollPane(newsFeedList);
 
@@ -134,14 +126,10 @@ public class UserView extends JFrame {
 		add(panel);
 	}
 
-	public void add(UserView view) {
-		this.userViews.add(view);
-	}
-	
 	public void updateFollowingListView() {
 		DefaultListModel<String> model = new DefaultListModel<String>();
 
-		for (Map.Entry<String, Observer> followed : user.getFollowedUsers().entrySet()) {
+		for (Map.Entry<String, IObserver> followed : user.getFollowedUsers().entrySet()) {
 			model.addElement(followed.getKey());
 		}
 		followingList.setModel(model);
@@ -150,7 +138,7 @@ public class UserView extends JFrame {
 	public void updateNewsFeedListView() {
 		DefaultListModel<String> model = new DefaultListModel<String>();
 
-		for (String tweet : user.getTweets()) {
+		for (String tweet : user.getNewsFeed()) {
 			model.addElement(tweet);
 		}
 		newsFeedList.setModel(model);

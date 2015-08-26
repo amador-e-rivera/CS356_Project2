@@ -3,28 +3,25 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 // ------------------------------------------------------------------------------------------------
-// AdminControlPanel implemented as a Singleton class so all updates made on the control panel
-// are reflected on every AdminControlPanel window open.
+// AdminControlPanel implemented as a Singleton class.
 // ------------------------------------------------------------------------------------------------
 @SuppressWarnings("serial")
 public class AdminControlPanel extends JFrame {
 
 	private static AdminControlPanel instance = null;
-	private UserView userView;
 	private JTree tree;
 	private UserGroup rootGroup;
 	private String selectedGroup;
@@ -64,8 +61,8 @@ public class AdminControlPanel extends JFrame {
 		// ----------------------------------------------------------------------------------------
 		// Tree View
 		// ----------------------------------------------------------------------------------------
-		DefaultMutableTreeNode root = rootGroup.getUserTreeNode();
-		tree = new JTree(root); // Add root node to tree
+		DefaultTreeModel model = new DefaultTreeModel(rootGroup.getUserTreeNode(), true);
+		tree = new JTree(model); // Add root node to tree
 		tree.setPreferredSize(new Dimension(250, 400));
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setSelectionRow(0); // Select root node
@@ -141,11 +138,7 @@ public class AdminControlPanel extends JFrame {
 		btn_UserView.addActionListener((ActionEvent) -> {
 			if (selectedUser != null) {
 				User user = rootGroup.getUser(selectedUser, rootGroup);
-				if (userView == null) {
-					userView = new UserView(user, rootGroup);
-				} else {
-					userView.add(new UserView(user, rootGroup));
-				}
+				user.getUserView(rootGroup);
 			}
 		});
 		c.gridx = 1;
@@ -157,6 +150,9 @@ public class AdminControlPanel extends JFrame {
 		// Show User Total Button
 		// ----------------------------------------------------------------------------------------
 		JButton btn_ShowUserTotal = new JButton("Show User Total");
+		btn_ShowUserTotal.addActionListener((ActionEvent) -> {
+			JOptionPane.showMessageDialog(this, "Number of Users: " + getVisitor().getNumberOfUsers());
+		});
 		c.anchor = GridBagConstraints.SOUTH;
 		c.gridx = 1;
 		c.gridy = 3;
@@ -167,6 +163,9 @@ public class AdminControlPanel extends JFrame {
 		// Show Group Total Button
 		// ----------------------------------------------------------------------------------------
 		JButton btn_ShowGroupTotal = new JButton("Show Group Total");
+		btn_ShowGroupTotal.addActionListener((ActionEvent) -> {
+			JOptionPane.showMessageDialog(this, "Number of Groups: " + getVisitor().getNumberOfGroups());
+		});
 		c.gridx = 2;
 		c.gridy = 3;
 		panel.add(btn_ShowGroupTotal, c);
@@ -175,6 +174,9 @@ public class AdminControlPanel extends JFrame {
 		// Show Messages Total Button
 		// ----------------------------------------------------------------------------------------
 		JButton btn_ShowMsgTotal = new JButton("Show Message Total");
+		btn_ShowMsgTotal.addActionListener((ActionEvent) -> {
+			JOptionPane.showMessageDialog(this, "Number of Messages: " + getVisitor().getNumberOfMessages());
+		});
 		c.gridx = 1;
 		c.gridy = 7;
 		c.gridheight = 1;
@@ -184,6 +186,9 @@ public class AdminControlPanel extends JFrame {
 		// Show Positive Percentage Button
 		// ----------------------------------------------------------------------------------------
 		JButton btn_ShowPositivePercentage = new JButton("Show Positive Percentage");
+		btn_ShowPositivePercentage.addActionListener((ActionEvent) -> {
+			JOptionPane.showMessageDialog(this, "Percentage of Positive Messages: " + getVisitor().getPositivePercentage() + "%");
+		});
 		c.gridx = 2;
 		c.gridy = 7;
 		panel.add(btn_ShowPositivePercentage, c);
@@ -199,13 +204,24 @@ public class AdminControlPanel extends JFrame {
 		if (group != null) {
 			group.addUser(user, rootGroup);
 			
-			// This creates a new model and checks if a node allows children. If no children
+			// This creates a new model and checks if a node allows children. If children
 			// are allowed then it uses the folder icon
 			DefaultTreeModel model = new DefaultTreeModel(rootGroup.getUserTreeNode(), true);
 			tree.setModel(model);
 		}
 	}
 
+	// ********************************************************************************************
+	// Returns a UserVisitor
+	// ********************************************************************************************
+	public UserVisitor getVisitor() {
+		UserVisitor visitor = new UserVisitor();
+		
+		rootGroup.accept(visitor);
+		
+		return visitor;
+	}
+	
 	// ********************************************************************************************
 	// Returns an instance of the AdminControl panel.
 	// ********************************************************************************************

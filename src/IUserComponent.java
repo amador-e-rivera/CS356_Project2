@@ -1,5 +1,5 @@
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public interface UserComponent {
+public interface IUserComponent {
 	public DefaultMutableTreeNode getUserTreeNode();
 }
