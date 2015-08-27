@@ -6,8 +6,8 @@ import java.util.Map;
 // ********************************************************************************************
 public class UserVisitor implements IUserVisitor {
 
-	int[] userInfo;
-	int numberOfGroups;
+	private int[] userInfo;
+	private int numberOfGroups;
 	
 	public UserVisitor() {
 		userInfo = new int[3];
